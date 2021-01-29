@@ -12,10 +12,10 @@ class Transaction:
         self.message = message
         self.signature = ''
 
-    def sign(private_rsa, public_rsa):
+    def sign(self, private_rsa, public_rsa):
         #  TODO: Verify data and sign with RSA private and public key!!!
         pass
 
-    def verify():
+    def verify(self):
         #  TODO: Sender must have amount + fee available in wallet!!!
         pass
