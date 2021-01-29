@@ -1,4 +1,4 @@
-from helpers.helpers import serializeSHA256, littleEndian
+from ..helpers.helpers import serializeSHA256, littleEndian
 
 
 class Block:
@@ -10,6 +10,18 @@ class Block:
         self.difficulty = difficulty
         self.nonce = nonce
         self.transactions = transactions
+
+    def __str__(self) -> str:
+        return '''
+            Version: {}
+            Previous hash: {}
+            Merkle root: {}
+            Timestamp: {}
+            Difficulty: {}
+            Nonce: {}
+            Timestamp: {}
+            Hash: {}
+            '''.format(self.version, self.previous_hash, self.merkle_root, self.timestamp, self.difficulty, self.nonce, self.timestamp, self.getHash())
 
     def getHash(self):
         return serializeSHA256(
