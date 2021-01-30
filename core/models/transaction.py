@@ -1,4 +1,5 @@
 from time import time
+from ..helpers import rsa
 
 
 class Transaction:
@@ -12,10 +13,10 @@ class Transaction:
         self.message = message
         self.signature = ''
 
-    def sign(self, private_rsa, public_rsa):
-        #  TODO: Verify data and sign with RSA private and public key!!!
-        pass
+    def sign(self, keyPair):
+        data = f"{self.timestamp}{self.sender}{self.receiver}{self.amount}{self.fee}{self.message}"
+        return rsa.generateSignature(data, keyPair)
 
-    def verify(self):
-        #  TODO: Sender must have amount + fee available in wallet!!!
-        pass
+    def verify(self, signature, keyPair):
+        data = f"{self.timestamp}{self.sender}{self.receiver}{self.amount}{self.fee}{self.message}"
+        return rsa.verifyKeyPairAndSignature(data, signature, keyPair)
