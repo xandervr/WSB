@@ -21,7 +21,9 @@ class Block:
             Nonce: {}
             Timestamp: {}
             Hash: {}
-            '''.format(self.version, self.previous_hash, self.merkle_root, self.timestamp, self.difficulty, self.nonce, self.timestamp, self.getHash())
+            Transactions: {}
+            '''.format(self.version, self.previous_hash, self.merkle_root, self.timestamp, self.difficulty, self.nonce,
+                       self.timestamp, self.getHash(), self.transactions)
 
     def getHash(self):
         return serializeSHA256(

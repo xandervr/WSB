@@ -1,3 +1,4 @@
+from ..models.transaction import Transaction
 from hashlib import sha256
 
 
@@ -11,7 +12,7 @@ def littleEndian(string):
     return "".join(splited)
 
 
-def generateMerkleRoot(transactions):
+def generateMerkleRoot(transactions: list[Transaction]):
     hashes = []
     for t in range(len(transactions)):
         tx = transactions[t]

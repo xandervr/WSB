@@ -17,12 +17,12 @@ def verifyKeyPairAndSignature(data, signature, keyPair):
     return hash == hashFromSignature
 
 
-keyPair = generateKeyPair()
-data = b'Brecht'
-signature = generateSignature(data, keyPair)
-print(signature)
+# keyPair = generateKeyPair()
+# data = b'Brecht'
+# signature = generateSignature(data, keyPair)
+# print(signature)
 
-wrongData = b'Xander'
-correct = verifyKeyPairAndSignature(wrongData, signature, keyPair)
+# wrongData = b'Xander'
+# correct = verifyKeyPairAndSignature(wrongData, signature, keyPair)
 
-print(correct)
+# print(correct)
