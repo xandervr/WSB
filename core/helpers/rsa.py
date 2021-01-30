@@ -3,7 +3,7 @@ from hashlib import sha512
 
 
 def generateKeyPair():
-    return RSA.generate(4096)
+    return RSA.generate(2048)
 
 
 def generateSignature(data, keyPair):
@@ -11,9 +11,9 @@ def generateSignature(data, keyPair):
     return hex(pow(hash, keyPair.d, keyPair.n))
 
 
-def verifyKeyPairAndSignature(data, signature, keyPair):
+def verifyKeyPairAndSignature(data, signature: str, pubkey: int):
     hash = int.from_bytes(sha512(data).digest(), byteorder='big')
-    hashFromSignature = pow(int(signature, 16), keyPair.e, keyPair.n)
+    hashFromSignature = pow(int(signature, 16), 65537, int(pubkey, 16))
     return hash == hashFromSignature
 
 

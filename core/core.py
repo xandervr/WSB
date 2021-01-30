@@ -17,12 +17,13 @@ class Core:
     def addBlock(self, block: Block):
         self.chain.addNode(block)
 
-    def addTransaction(self,
-                       sender: Address, receiver: Address, amount: float, fee: float, message: str) -> Transaction:
-        return self.transaction_pool.addTransaction(sender, receiver, amount, fee, message)
+    def addTransaction(self, sender: str, receiver: str, amount: float, fee: float, signature: str, pubkey: str,
+                       message: str) -> Transaction:
+        return self.transaction_pool.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
 
     def generateWallet(self):
-        return Address()
+        addr = Address()
+        return addr
 
     def printChain(self):
         self.chain.printList()

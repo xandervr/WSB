@@ -1,4 +1,5 @@
 from ..helpers.helpers import serializeSHA256, littleEndian
+import json
 
 
 class Block:
@@ -10,6 +11,7 @@ class Block:
         self.difficulty = difficulty
         self.nonce = nonce
         self.transactions = transactions
+        self.hash = self.getHash()
 
     def __str__(self) -> str:
         return '''
@@ -23,7 +25,11 @@ class Block:
             Hash: {}
             Transactions: {}
             '''.format(self.version, self.previous_hash, self.merkle_root, self.timestamp, self.difficulty, self.nonce,
-                       self.timestamp, self.getHash(), self.transactions)
+                       self.timestamp, self.hash, self.transactions)
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
 
     def getHash(self):
         return serializeSHA256(
