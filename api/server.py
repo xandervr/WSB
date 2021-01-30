@@ -12,10 +12,6 @@ class Server:
         app = flask.Flask(__name__)
         app.config["DEBUG"] = True
 
-        @app.route('/generate', methods=['POST'])
-        def generateWallet():
-            return self.chain.generateWallet().generateAddress()
-
         @app.route('/transactions', methods=['GET'])
         def transactions():
             return json.dumps(list(map(lambda x: x.__dict__, self.chain.transaction_pool.transactions)))

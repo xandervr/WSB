@@ -1,6 +1,5 @@
 from .models.transaction import Transaction
 from .txpool import TxPool
-from .models.address import Address
 from .models.block import Block
 from .helpers.linkedlist import LinkedList
 
@@ -20,10 +19,6 @@ class Core:
     def addTransaction(self, sender: str, receiver: str, amount: float, fee: float, signature: str, pubkey: str,
                        message: str) -> Transaction:
         return self.transaction_pool.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
-
-    def generateWallet(self):
-        addr = Address()
-        return addr
 
     def printChain(self):
         self.chain.printList()

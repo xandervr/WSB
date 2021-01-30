@@ -22,8 +22,6 @@ class Client:
 
     def generateSignature(self, data):
         hash = int.from_bytes(sha512(data).digest(), byteorder='big')
-        print(hash)
-        print(data)
         return hex(pow(hash, self.private_key.d, self.private_key.n))
 
     def signTransaction(self, receiver: str, amount: float, fee: float, message: str):
