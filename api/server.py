@@ -34,4 +34,21 @@ class Server:
             else:
                 return '', 403
 
+        @app.route('/blocks', methods=['GET'])
+        def block():
+            return json.dumps(list(map(lambda x: x.__dict__, self.chain.toList())))
+
+        @app.route('/blocks', methods=['POST'])
+        def addBlock():
+            data = flask.request.data.decode('utf-8')
+            block_json = json.loads(data)
+            transactions = block_json['transactions']
+            nonce = block_json['nonce']
+            legitTransactions = []
+            for i in range(len(transactions)):
+                tx = self.chain.transaction_pool.getTransaction(transactions[i])
+                if tx is not None:
+                    legitTransactions.append(tx)
+            return self.chain.addBlock(legitTransactions, nonce)
+
         app.run(None, port)

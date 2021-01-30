@@ -1,13 +1,15 @@
+from core.core import TARGET_DIFF
 from ..helpers.helpers import serializeSHA256, littleEndian
 import json
+import time
 
 
 class Block:
-    def __init__(self, version, previous_hash, merkle_root, timestamp, difficulty, nonce, transactions):
+    def __init__(self, version, previous_hash, merkle_root, difficulty, nonce, transactions):
         self.version = version
         self.previous_hash = previous_hash
         self.merkle_root = merkle_root
-        self.timestamp = timestamp
+        self.timestamp = int(time())
         self.difficulty = difficulty
         self.nonce = nonce
         self.transactions = transactions
@@ -30,6 +32,9 @@ class Block:
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
+
+    def verify(self):
+        return hex(self.hash) < TARGET_DIFF
 
     def getHash(self):
         return serializeSHA256(

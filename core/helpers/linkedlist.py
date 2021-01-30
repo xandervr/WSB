@@ -1,3 +1,7 @@
+from core.models.block import Block
+from .linkedlist import Node
+
+
 class LinkedList:
     def __init__(self):
         self.head = None
@@ -12,7 +16,20 @@ class LinkedList:
                 traverse(node.next)
         traverse(self.head)
 
-    def getLast(self):
+    def toList(self):
+        blocks = []
+
+        def traverse(node):
+            if node is None:
+                return
+            else:
+                blocks.append(node.value)
+            if node.next is not None:
+                traverse(node.next)
+        traverse(self.head)
+        return blocks
+
+    def getLast(self) -> Node:
         if self.head is None:
             return self.head
 
@@ -23,7 +40,7 @@ class LinkedList:
                 return node
         return traverse(self.head)
 
-    def addNode(self, value):
+    def addNode(self, value: Block):
         lastN = self.getLast()
         if lastN is None:
             n = Node(1, value)
@@ -34,7 +51,7 @@ class LinkedList:
 
 
 class Node:
-    def __init__(self, index=1, val=None):
+    def __init__(self, index=1, val: Block = None):
         self.index = index
         self.value = val
         self.next = None
