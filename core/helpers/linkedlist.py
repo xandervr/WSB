@@ -1,5 +1,11 @@
 from core.models.block import Block
-from .linkedlist import Node
+
+
+class Node:
+    def __init__(self, index=1, val: Block = None):
+        self.index = index
+        self.value = val
+        self.next = None
 
 
 class LinkedList:
@@ -48,10 +54,3 @@ class LinkedList:
         else:
             n = Node(lastN.index+1, value)
             lastN.next = n
-
-
-class Node:
-    def __init__(self, index=1, val: Block = None):
-        self.index = index
-        self.value = val
-        self.next = None

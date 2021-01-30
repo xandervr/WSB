@@ -1,7 +1,7 @@
-from core.core import TARGET_DIFF
 from ..helpers.helpers import serializeSHA256, littleEndian
 import json
 import time
+from ..consts import TARGET_DIFF
 
 
 class Block:

@@ -1,12 +1,9 @@
-from core.helpers.helpers import generateMerkleRoot
+from .helpers.helpers import generateMerkleRoot
 from .models.transaction import Transaction
 from .txpool import TxPool
 from .models.block import Block
 from .helpers.linkedlist import LinkedList
-
-MAX_NONCE = 1000000000
-TARGET_DIFF = 0x0000ffff00000000000000000000000000000000000000000000000000000000
-CHAIN_VERSION = '01000000'
+from .consts import CHAIN_VERSION, TARGET_DIFF
 
 
 class Core:
