@@ -23,14 +23,19 @@ def generateMerkleRoot(transactions: list[Transaction]):
 
     def innerRecurse(hashes):
         parents = []
-        for i in range(0, len(hashes) - 1, 2):
+        i = 0
+        while i < len(hashes):
             l = r = hashes[i]
             if i+1 < len(hashes):
                 r = hashes[i+1]
             parents.append(serializeSHA256(l+r))
+            i += 2
         if len(parents) > 1:
             return innerRecurse(parents)
         else:
             return parents[0]
 
-    return innerRecurse(hashes=hashes)
+    if len(hashes) > 0:
+        return innerRecurse(hashes=hashes)
+    else:
+        return ""

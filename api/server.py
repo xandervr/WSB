@@ -1,7 +1,9 @@
 
+from core.consts import CHAIN_VERSION, TARGET_DIFF
 from core.core import Core
 import flask
 import json
+from core.encoders.blockencoder import BlockEncoder
 
 
 class Server:
@@ -12,9 +14,27 @@ class Server:
         app = flask.Flask(__name__)
         app.config["DEBUG"] = True
 
+        @app.route('/info', methods=['GET'])
+        def info():
+            lastBlock = self.chain.chain.getLast()
+            hash = ""
+            if lastBlock is not None:
+                hash = lastBlock.value.getHash()
+
+            response = flask.make_response(json.dumps({
+                "version": CHAIN_VERSION,
+                "previous_hash": hash,
+                "difficulty": TARGET_DIFF
+            }))
+            response.headers["Content-Type"] = "application/json"
+            return response
+
         @app.route('/transactions', methods=['GET'])
         def transactions():
-            return json.dumps(list(map(lambda x: x.__dict__, self.chain.transaction_pool.transactions)))
+            response = flask.make_response(json.dumps(
+                list(map(lambda x: x.__dict__, self.chain.transaction_pool.transactions))))
+            response.headers["Content-Type"] = "application/json"
+            return response
 
         @app.route('/transactions', methods=['POST'])
         def addTransaction():
@@ -30,13 +50,17 @@ class Server:
             pubkey = tx_json['pubkey']
             tx = self.chain.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
             if tx is not None:
-                return json.dumps(tx.__dict__)
+                response = flask.make_response(json.dumps(tx.__dict__))
+                response.headers["Content-Type"] = "application/json"
+                return response
             else:
                 return '', 403
 
         @app.route('/blocks', methods=['GET'])
         def block():
-            return json.dumps(list(map(lambda x: x.__dict__, self.chain.toList())))
+            response = flask.make_response(json.dumps(list(map(lambda x: x.__dict__, self.chain.toList()))))
+            response.headers["Content-Type"] = "application/json"
+            return response
 
         @app.route('/blocks', methods=['POST'])
         def addBlock():
@@ -49,6 +73,12 @@ class Server:
                 tx = self.chain.transaction_pool.getTransaction(transactions[i])
                 if tx is not None:
                     legitTransactions.append(tx)
-            return self.chain.addBlock(legitTransactions, nonce)
+            block = self.chain.addBlock(legitTransactions, nonce)
+            if block is None:
+                return "", 403
+            else:
+                response = flask.make_response(json.dumps(block, cls=BlockEncoder))
+                response.headers["Content-Type"] = "application/json"
+                return response
 
         app.run(None, port)

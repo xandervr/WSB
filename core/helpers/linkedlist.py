@@ -29,6 +29,7 @@ class LinkedList:
             if node is None:
                 return
             else:
+                node.value.height = node.index
                 blocks.append(node.value)
             if node.next is not None:
                 traverse(node.next)
@@ -52,5 +53,6 @@ class LinkedList:
             n = Node(1, value)
             self.head = n
         else:
+            value.height = lastN.index+1
             n = Node(lastN.index+1, value)
             lastN.next = n
