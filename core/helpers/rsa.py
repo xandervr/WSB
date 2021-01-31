@@ -1,5 +1,5 @@
 from Crypto.PublicKey import RSA
-from hashlib import sha512
+from hashlib import sha512, sha256
 
 
 def generateKeyPair():
@@ -9,6 +9,10 @@ def generateKeyPair():
 def generateSignature(data, keyPair):
     hash = int.from_bytes(sha512(data).digest(), byteorder='big')
     return hex(pow(hash, keyPair.d, keyPair.n))
+
+
+def generateAddress(privkey: int):
+    return hex(int.from_bytes(sha256(hex(privkey).encode('utf-8')).digest(), byteorder='big'))
 
 
 def verifyKeyPairAndSignature(data, signature: str, pubkey: int):

@@ -1,3 +1,4 @@
+from hashlib import sha256
 from time import time
 from ..helpers import rsa
 
@@ -23,7 +24,8 @@ class Transaction:
     def verify(self, pubkey):
         try:
             data = f"{self.sender}{self.receiver}{self.amount}{self.fee}{self.message}".encode('utf-8')
-            return rsa.verifyKeyPairAndSignature(data, self.signature, pubkey)
+            return rsa.verifyKeyPairAndSignature(
+                data, self.signature, pubkey) and self.sender == rsa.generateAddress(int(pubkey, 16))
         except Exception as e:
             print(e)
 
