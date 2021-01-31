@@ -22,6 +22,7 @@ class Core:
                 generateMerkleRoot(transactions),
                 TARGET_DIFF, nonce, transactions)
         if block.verify():
+            self.consumeBlockTransactions(block)
             self.chain.addNode(block)
             return block
         else:
@@ -30,6 +31,13 @@ class Core:
     def addTransaction(self, sender: str, receiver: str, amount: float, fee: float, signature: str, pubkey: str,
                        message: str) -> Transaction:
         return self.transaction_pool.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
+
+    def consumeBlockTransactions(self, block: Block):
+        idx = 0
+        while idx < len(block.transactions):
+            tx = block.transactions[idx]
+            self.transaction_pool.consumeTransaction(tx)
+            idx += 1
 
     def printChain(self):
         self.chain.printList()

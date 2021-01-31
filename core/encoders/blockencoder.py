@@ -13,7 +13,8 @@ class BlockEncoder(JSONEncoder):
                 "difficulty": z.difficulty,
                 "nonce": z.nonce,
                 "hash": z.hash,
-                "height": z.height
+                "height": z.height,
+                "transactions": list(map(lambda x: x.toJSON(), z.transactions))
             }
         else:
             return super().default(z)

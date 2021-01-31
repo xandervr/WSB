@@ -1,5 +1,6 @@
 
-from core.consts import CHAIN_VERSION, TARGET_DIFF
+from core.models.transaction import transactionFromJSON
+from core.consts import BLOCK_REWARD, CHAIN_VERSION, MAX_BLOCK_SIZE, TARGET_DIFF
 from core.core import Core
 import flask
 import json
@@ -24,7 +25,9 @@ class Server:
             response = flask.make_response(json.dumps({
                 "version": CHAIN_VERSION,
                 "previous_hash": hash,
-                "difficulty": TARGET_DIFF
+                "difficulty": TARGET_DIFF,
+                "block_size": MAX_BLOCK_SIZE,
+                "block_reward": BLOCK_REWARD
             }))
             response.headers["Content-Type"] = "application/json"
             return response
@@ -66,13 +69,19 @@ class Server:
         def addBlock():
             data = flask.request.data.decode('utf-8')
             block_json = json.loads(data)
-            transactions = block_json['transactions']
+            transactions: list = block_json['transactions']
             nonce = block_json['nonce']
             legitTransactions = []
-            for i in range(len(transactions)):
-                tx = self.chain.transaction_pool.getTransaction(transactions[i])
-                if tx is not None:
-                    legitTransactions.append(tx)
+            if len(transactions) > 0:
+                coinbaseTransaction = transactions[0]
+                transactions.remove(coinbaseTransaction)
+                coinbaseTransaction = transactionFromJSON(coinbaseTransaction)
+                legitTransactions.append(coinbaseTransaction)
+                for i in range(len(transactions)):
+                    tx = self.chain.transaction_pool.getTransaction(transactions[i]['signature'])
+                    if tx is not None:
+                        legitTransactions.append(tx)
+
             block = self.chain.addBlock(legitTransactions, nonce)
             if block is None:
                 return "", 403

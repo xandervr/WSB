@@ -1,4 +1,3 @@
-from hashlib import sha256
 from time import time
 from ..helpers import rsa
 
@@ -15,6 +14,7 @@ class Transaction:
         self.message = message
         self.signature = signature
         self.pubkey = pubkey
+        self.isCoinbaseTransaction = sender == 'coinbase'
 
     # def sign(self, keyPair):
     #     data = f"{self.timestamp}{self.sender}{self.receiver}{self.amount}{self.fee}{self.message}".encode('utf-8')
@@ -29,6 +29,9 @@ class Transaction:
         except Exception as e:
             print(e)
 
+    def toJSON(self) -> str:
+        return self.__dict__
+
     def __str__(self) -> str:
         return '''
                 Timestamp: {}
@@ -39,3 +42,9 @@ class Transaction:
                 Message: {}
                 '''.format(self.timestamp, self.sender,
                            self.receiver, self.amount, self.fee, self.message)
+
+
+def transactionFromJSON(o: dict) -> Transaction:
+    tx = Transaction(o['sender'], o['receiver'], o['amount'], o['fee'], o['signature'], o['pubkey'], o['message'])
+    tx.timestamp = o['timestamp']
+    return tx

@@ -19,3 +19,7 @@ class TxPool:
         for i in range(len(self.transactions)):
             if self.transactions[i].signature == signature:
                 return self.transactions[i]
+
+    def consumeTransaction(self, tx: Transaction):
+        if not tx.isCoinbaseTransaction:
+            self.transactions.remove(tx)
