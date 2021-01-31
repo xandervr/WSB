@@ -58,7 +58,7 @@ class Server:
 
         @app.route('/blocks', methods=['GET'])
         def block():
-            response = flask.make_response(json.dumps(list(map(lambda x: x.__dict__, self.chain.toList()))))
+            response = flask.make_response(json.dumps(self.chain.toList(), cls=BlockEncoder))
             response.headers["Content-Type"] = "application/json"
             return response
 

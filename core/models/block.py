@@ -36,7 +36,6 @@ class Block:
                           sort_keys=True, indent=4)
 
     def verify(self):
-        print(self.hash)
         return int(self.hash, 16) < TARGET_DIFF
 
     def getHash(self):

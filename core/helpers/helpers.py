@@ -12,7 +12,7 @@ def littleEndian(string):
     return "".join(splited)
 
 
-def generateMerkleRoot(transactions: list[Transaction]):
+def generateMerkleRoot(transactions: list[Transaction]) -> str:
     hashes = []
     for t in range(len(transactions)):
         tx = transactions[t]
