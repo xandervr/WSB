@@ -1,6 +1,6 @@
 
 from core.models.transaction import transactionFromJSON
-from core.consts import BLOCK_REWARD, CHAIN_VERSION, MAX_BLOCK_SIZE, TARGET_DIFF
+from core.consts import BLOCK_REWARD, CHAIN_VERSION, MAX_BLOCK_SIZE
 from core.core import Core
 import flask
 import json
@@ -25,7 +25,7 @@ class Server:
             response = flask.make_response(json.dumps({
                 "version": CHAIN_VERSION,
                 "previous_hash": hash,
-                "difficulty": TARGET_DIFF,
+                "difficulty": self.chain.params.difficulty,
                 "block_size": MAX_BLOCK_SIZE,
                 "block_reward": BLOCK_REWARD,
                 "network_hash_rate": self.chain.calculateNetworkHashrate()

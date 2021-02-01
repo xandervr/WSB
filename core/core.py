@@ -3,7 +3,7 @@ from .models.transaction import Transaction
 from .txpool import TxPool
 from .models.block import Block
 from .helpers.linkedlist import LinkedList
-from .consts import BLOCK_MINE_TIME_TARGET, CHAIN_VERSION, TARGET_DIFF
+from .consts import BLOCK_MINE_TIME_TARGET, CHAIN_VERSION, DIFFICULTY_BLOCKS, TARGET_DIFF
 import pickle
 import time
 from .params import Params
@@ -74,8 +74,26 @@ class Core:
     def calculateDifficultyT(self) -> float:
         return self.params.difficulty / TARGET_DIFF
 
-    def adjustDifficulty(self):
-        pass
+    def calculateDifficultyAdjustment(self, expected, actual) -> float:
+        if actual < 1:
+            return 1
+        return actual/expected
+
+    def adjustDifficulty(self, currBlock: Block):
+        genesisBlock = self.chain.head
+        expectedTime = DIFFICULTY_BLOCKS * BLOCK_MINE_TIME_TARGET
+        referenceBlock = self.params.last_difficulty_change_block
+        if genesisBlock is None or currBlock is None:
+            return
+        if self.params.last_difficulty_change_block is None:
+            referenceBlock = genesisBlock.value
+        if (currBlock.height - referenceBlock.height >= DIFFICULTY_BLOCKS):
+            self.params.last_difficulty_change_block = currBlock
+            actualTime = currBlock.timestamp - referenceBlock.timestamp
+            adj = self.calculateDifficultyAdjustment(expectedTime, actualTime)
+            self.params.difficulty = int(self.params.difficulty * adj)
+            if self.params.difficulty > TARGET_DIFF:
+                self.params.difficulty = TARGET_DIFF
 
     def calculateNetworkHashrate(self):
         genesisBlock = self.chain.head
@@ -94,16 +112,18 @@ class Core:
         lastBlock = self.chain.getLast()
         if lastBlock is None:
             block = Block(timestamp, CHAIN_VERSION, '', generateMerkleRoot(
-                transactions), TARGET_DIFF, nonce, transactions)
+                transactions), self.params.difficulty, nonce, transactions)
         else:
             block = Block(timestamp,
                           CHAIN_VERSION, lastBlock.value.getHash(),
                           generateMerkleRoot(transactions),
-                          TARGET_DIFF, nonce, transactions)
+                          self.params.difficulty, nonce, transactions)
         if block.verify():
             self.consumeBlockTransactions(block)
             self.chain.addNode(block)
+            self.adjustDifficulty(block)
             self.saveChain()
+            self.saveParams()
             return block
         else:
             return None

@@ -1,6 +1,6 @@
 from ..helpers.helpers import serializeSHA256, littleEndian
 import json
-from ..consts import MAX_BLOCK_SIZE, TARGET_DIFF
+from ..consts import MAX_BLOCK_SIZE
 import sys
 
 
@@ -36,7 +36,7 @@ class Block:
                           sort_keys=True, indent=4)
 
     def verify(self):
-        return int(self.hash, 16) < TARGET_DIFF and sys.getsizeof(self.transactions) <= MAX_BLOCK_SIZE
+        return int(self.hash, 16) < self.difficulty and sys.getsizeof(self.transactions) <= MAX_BLOCK_SIZE
 
     def getHash(self):
         return serializeSHA256(
