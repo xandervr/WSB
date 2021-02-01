@@ -1,16 +1,15 @@
 from ..helpers.helpers import serializeSHA256, littleEndian
 import json
-from time import time
 from ..consts import MAX_BLOCK_SIZE, TARGET_DIFF
 import sys
 
 
 class Block:
-    def __init__(self, version, previous_hash, merkle_root, difficulty, nonce, transactions, height=1):
+    def __init__(self, timestamp, version, previous_hash, merkle_root, difficulty, nonce, transactions, height=1):
         self.version = version
         self.previous_hash = previous_hash
         self.merkle_root = merkle_root
-        self.timestamp = int(time())
+        self.timestamp = timestamp
         self.difficulty = difficulty
         self.nonce = nonce
         self.transactions = transactions
@@ -41,5 +40,5 @@ class Block:
 
     def getHash(self):
         return serializeSHA256(
-            self.version + littleEndian(self.previous_hash) + littleEndian(self.merkle_root) +
-            littleEndian(hex(self.difficulty)) + littleEndian(hex(self.nonce)))
+            self.version + littleEndian(self.previous_hash) + littleEndian(self.merkle_root) + hex(self.timestamp) +
+            hex(self.difficulty) + str(self.nonce))

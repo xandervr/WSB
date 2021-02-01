@@ -6,6 +6,7 @@ class Node:
         self.index = index
         self.value = val
         self.next = None
+        self.prev = None
 
 
 class LinkedList:
@@ -55,4 +56,5 @@ class LinkedList:
         else:
             value.height = lastN.index+1
             n = Node(lastN.index+1, value)
+            n.prev = lastN
             lastN.next = n

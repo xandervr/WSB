@@ -27,7 +27,8 @@ class Server:
                 "previous_hash": hash,
                 "difficulty": TARGET_DIFF,
                 "block_size": MAX_BLOCK_SIZE,
-                "block_reward": BLOCK_REWARD
+                "block_reward": BLOCK_REWARD,
+                "network_hash_rate": self.chain.calculateNetworkHashrate()
             }))
             response.headers["Content-Type"] = "application/json"
             return response
@@ -71,6 +72,7 @@ class Server:
             block_json = json.loads(data)
             transactions: list = block_json['transactions']
             nonce = block_json['nonce']
+            timestamp = block_json['timestamp']
             legitTransactions = []
             if len(transactions) > 0:
                 coinbaseTransaction = transactions[0]
@@ -82,7 +84,7 @@ class Server:
                     if tx is not None:
                         legitTransactions.append(tx)
 
-            block = self.chain.addBlock(legitTransactions, nonce)
+            block = self.chain.addBlock(legitTransactions, nonce, timestamp)
             if block is None:
                 return "", 403
             else:
@@ -90,4 +92,4 @@ class Server:
                 response.headers["Content-Type"] = "application/json"
                 return response
 
-        app.run(None, port)
+        app.run("0.0.0.0", port)

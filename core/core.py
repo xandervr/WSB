@@ -3,34 +3,116 @@ from .models.transaction import Transaction
 from .txpool import TxPool
 from .models.block import Block
 from .helpers.linkedlist import LinkedList
-from .consts import CHAIN_VERSION, TARGET_DIFF
+from .consts import BLOCK_MINE_TIME_TARGET, CHAIN_VERSION, TARGET_DIFF
+import pickle
+import time
+from .params import Params
 
 
 class Core:
     def __init__(self):
         self.chain = LinkedList()
         self.transaction_pool: TxPool = TxPool()
+        self.params = Params()
 
-    def addBlock(self, transactions: list[Transaction], nonce):
+    def saveChain(self):
+        try:
+            with open('chain', 'wb') as output:
+                pickle.dump(self.chain, output, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e)
+
+    def loadChain(self):
+        try:
+            with open('chain', 'rb') as input:
+                self.chain = pickle.load(input)
+        except Exception as e:
+            print(e)
+
+    def saveParams(self):
+        try:
+            with open('params', 'wb') as output:
+                pickle.dump(self.params, output, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e)
+
+    def loadParams(self):
+        try:
+            with open('params', 'rb') as input:
+                self.params = pickle.load(input)
+        except Exception as e:
+            print(e)
+
+    def saveTxPool(self):
+        try:
+            with open('txpool', 'wb') as output:
+                pickle.dump(self.transaction_pool, output, pickle.HIGHEST_PROTOCOL)
+        except Exception as e:
+            print(e)
+
+    def loadTxPool(self):
+        try:
+            with open('txpool', 'rb') as input:
+                self.transaction_pool = pickle.load(input)
+        except Exception as e:
+            print(e)
+
+    def getBlocksMinedSinceLastDay(self):
+        durationToSearch = 60 * 60 * 24
+        currTime = int(time.time())
+        lastBlock = self.chain.getLast()
+        cursor = lastBlock
+        if lastBlock is None:
+            return 0
+        while cursor.prev is not None:
+            if cursor.value.timestamp >= currTime - durationToSearch:
+                cursor = cursor.prev
+            else:
+                break
+        return lastBlock.value.height - cursor.value.height
+
+    def calculateDifficultyT(self) -> float:
+        return self.params.difficulty / TARGET_DIFF
+
+    def adjustDifficulty(self):
+        pass
+
+    def calculateNetworkHashrate(self):
+        genesisBlock = self.chain.head
+        lastBlock = self.chain.getLast()
+        if genesisBlock is not None and lastBlock is not None:
+            todayBlocks = self.getBlocksMinedSinceLastDay()
+            expectedBlocks = 24 * 60 * 60 / BLOCK_MINE_TIME_TARGET
+            hash_rate = ((todayBlocks/expectedBlocks) *
+                         (self.calculateDifficultyT() * 2 ** 32)) / BLOCK_MINE_TIME_TARGET
+            return hash_rate
+        else:
+            return 0
+
+    def addBlock(self, transactions: list[Transaction], nonce, timestamp):
         block: Block
         lastBlock = self.chain.getLast()
         if lastBlock is None:
-            block = Block(CHAIN_VERSION, '', generateMerkleRoot(transactions), TARGET_DIFF, nonce, transactions)
+            block = Block(timestamp, CHAIN_VERSION, '', generateMerkleRoot(
+                transactions), TARGET_DIFF, nonce, transactions)
         else:
-            block = Block(
-                CHAIN_VERSION, lastBlock.value.getHash(),
-                generateMerkleRoot(transactions),
-                TARGET_DIFF, nonce, transactions)
+            block = Block(timestamp,
+                          CHAIN_VERSION, lastBlock.value.getHash(),
+                          generateMerkleRoot(transactions),
+                          TARGET_DIFF, nonce, transactions)
         if block.verify():
             self.consumeBlockTransactions(block)
             self.chain.addNode(block)
+            self.saveChain()
             return block
         else:
             return None
 
     def addTransaction(self, sender: str, receiver: str, amount: float, fee: float, signature: str, pubkey: str,
                        message: str) -> Transaction:
-        return self.transaction_pool.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
+        tx = self.transaction_pool.addTransaction(sender, receiver, amount, fee, signature, pubkey, message)
+        self.saveTxPool()
+        return tx
 
     def consumeBlockTransactions(self, block: Block):
         idx = 0
@@ -38,6 +120,7 @@ class Core:
             tx = block.transactions[idx]
             self.transaction_pool.consumeTransaction(tx)
             idx += 1
+        self.saveTxPool()
 
     def printChain(self):
         self.chain.printList()
