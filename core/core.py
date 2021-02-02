@@ -3,7 +3,7 @@ from .models.transaction import Transaction
 from .txpool import TxPool
 from .models.block import Block
 from .helpers.linkedlist import LinkedList
-from .consts import BLOCK_MINE_TIME_TARGET, CHAIN_VERSION, DIFFICULTY_BLOCKS, TARGET_DIFF
+from .consts import BLOCK_MINE_TIME_TARGET, CHAIN_VERSION, DIFFICULTY_BLOCKS, TARGET_DIFF_BITS, TARGET_DIFF_SHORT
 import pickle
 import time
 from .params import Params
@@ -71,13 +71,10 @@ class Core:
                 break
         return lastBlock.value.height - cursor.value.height
 
-    def calculateDifficultyT(self) -> float:
-        return self.params.difficulty / TARGET_DIFF
-
     def calculateDifficultyAdjustment(self, expected, actual) -> float:
         if actual < 1:
-            return 1
-        return actual/expected
+            return 1.0
+        return float(expected) / float(actual)
 
     def adjustDifficulty(self, currBlock: Block):
         genesisBlock = self.chain.head
@@ -92,8 +89,11 @@ class Core:
             actualTime = currBlock.timestamp - referenceBlock.timestamp
             adj = self.calculateDifficultyAdjustment(expectedTime, actualTime)
             self.params.difficulty = int(self.params.difficulty * adj)
-            if self.params.difficulty > TARGET_DIFF:
-                self.params.difficulty = TARGET_DIFF
+            if self.params.difficulty < TARGET_DIFF_BITS:
+                self.params.difficulty = TARGET_DIFF_BITS
+
+    def calculateHashrateToMine(self):
+        return (self.params.difficulty * 2**32) / 600
 
     def calculateNetworkHashrate(self):
         genesisBlock = self.chain.head
@@ -101,8 +101,7 @@ class Core:
         if genesisBlock is not None and lastBlock is not None:
             todayBlocks = self.getBlocksMinedSinceLastDay()
             expectedBlocks = 24 * 60 * 60 / BLOCK_MINE_TIME_TARGET
-            hash_rate = ((todayBlocks/expectedBlocks) *
-                         (self.calculateDifficultyT() * 2 ** 32)) / BLOCK_MINE_TIME_TARGET
+            hash_rate = (todayBlocks/expectedBlocks) * self.calculateHashrateToMine()
             return hash_rate
         else:
             return 0

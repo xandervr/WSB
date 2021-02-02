@@ -1,3 +1,4 @@
+from core.consts import TARGET_DIFF_SHORT
 from ..models.transaction import Transaction
 from hashlib import sha256
 
@@ -10,6 +11,10 @@ def littleEndian(string):
     splited = [str(string)[i:i + 2] for i in range(0, len(str(string)), 2)]
     splited.reverse()
     return "".join(splited)
+
+
+def calculateDifficulty(currDiff) -> float:
+    return TARGET_DIFF_SHORT / currDiff
 
 
 def generateMerkleRoot(transactions: list[Transaction]) -> str:

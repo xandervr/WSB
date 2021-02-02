@@ -28,7 +28,8 @@ class Server:
                 "difficulty": self.chain.params.difficulty,
                 "block_size": MAX_BLOCK_SIZE,
                 "block_reward": BLOCK_REWARD,
-                "network_hash_rate": self.chain.calculateNetworkHashrate()
+                "network_hash_rate": self.chain.calculateNetworkHashrate(),
+                "required_hash_rate": self.chain.calculateHashrateToMine()
             }))
             response.headers["Content-Type"] = "application/json"
             return response
