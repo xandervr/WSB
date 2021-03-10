@@ -1,4 +1,4 @@
-# WBS - Wall Street Bets
+# WSB - Wall Street Bets
 Author: Koen Brekat
 
 ## Parts
